@@ -22,7 +22,46 @@ def menu():
                 \rPlease choose one of the options above.
                 \rA number from 1-5.
                 \rPlease press enter to try again.""")         
+            
+def submenu():
+    while True:
+        print(
+            """
+            \n1) Edit
+            \r2) Delete
+            \r3) Return to main menu""")
+        choice = input("What would you like to do?: ")
+        if choice in ["1", "2", "3"]:
+            return choice
+        else:            
+            input("""
+                \rPlease choose one of the options above.
+                \rA number from 1-3.
+                \rPlease press enter to try again.""")         
 
+
+def edit_check(column_name, current_value):
+    print(f"\n*** EDIT {column_name} ***")
+    if column_name == "Price":
+        print(f"\rCurrent Value: {current_value/100}")
+    elif column_name == "Date":
+        print(f"Current Value: {current_value.strftime('%B %d, %Y')}")
+    else:
+        print(f"\rCurrent Value: {current_value}")
+
+    if column_name == "Date" or column_name == "Price":
+        while True:
+            changes = input("What would you like to change?: ")
+            if column_name == "Date":
+                changes = clean_date(changes)
+                if type(changes) == datetime.date:
+                    return changes
+            elif column_name == "Price":
+                changes = clean_price(changes)
+                if type(changes) == int:
+                    return changes
+    else:
+        return input("What would you like to change?: ")
 
 def clean_date(date_str):
     months = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -111,7 +150,20 @@ def app():
                 print("\nNo book found.")
             else:
                 print(found_book)
-            input("\nPress enter to return to main menu.")
+                sub_menu = submenu()
+                if sub_menu == "1":
+                    found_book.title = edit_check("Title", found_book.title)
+                    found_book.author = edit_check("Author", found_book.author)
+                    found_book.published_date = edit_check("Date", found_book.published_date)
+                    found_book.price = edit_check("Price", found_book.price)
+                    session.commit()
+                    print("Book updated!")
+                    time.sleep(1.5)
+                elif sub_menu == "2":
+                    session.delete(found_book)
+                    session.commit()
+                    print("Book Deleted!")
+                    time.sleep(1.5)
         elif choice == "4":
             # book analysis
             pass
